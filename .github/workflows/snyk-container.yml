@@ -54,11 +54,8 @@ jobs:
       run: ls -lha
 
     - name: Check for SARIF file
-      run: |
-        if [ ! -f snyk.sarif ]; then
-          echo "SARIF file not found!"
-          exit 1
-        fi
+      run: cat snyk.sarif
+
     - name: Upload result to GitHub Code Scanning
       uses: github/codeql-action/upload-sarif@v3
       with:
