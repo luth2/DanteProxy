@@ -48,7 +48,7 @@ jobs:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
         image: local/danteproxy
-        args: --file=Dockerfile
+        args: --file=Container/DOCKERFILE
     - name: Upload result to GitHub Code Scanning
       uses: github/codeql-action/upload-sarif@v3
       with:
