@@ -50,13 +50,10 @@ jobs:
         image: local/danteproxy
         args: --file=Container/DOCKERFILE
 
-    - name: List Files in Dir
-      run: ls -lha
-
     - name: Check for SARIF file
       run: cat snyk.sarif
 
-    - name: Upload result to GitHub Code Scanning
-      uses: github/codeql-action/upload-sarif@v3
-      with:
-        sarif_file: snyk.sarif
+#    - name: Upload result to GitHub Code Scanning
+#      uses: github/codeql-action/upload-sarif@v3
+#      with:
+#        sarif_file: snyk.sarif
