@@ -49,6 +49,10 @@ jobs:
       with:
         image: local/danteproxy
         args: --file=Container/DOCKERFILE
+
+    - name: List Files in Dir
+      run: ls -lha
+
     - name: Check for SARIF file
       run: |
         if [ ! -f snyk.sarif ]; then
