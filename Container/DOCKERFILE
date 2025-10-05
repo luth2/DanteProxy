@@ -1,0 +1,7 @@
+# Dockerfile to create the Base Container for Dante Proxy with Alpine
+# Build via Pipeline
+
+FROM alpine:latest
+
+LABEL maintainer="luth2"
+
