@@ -5,3 +5,18 @@ FROM alpine:latest
 
 LABEL maintainer="luth2"
 
+ENV PORT=1080
+
+# Install necessary packages
+RUN apk update && apk add --no-cache \
+    dante-server \
+    && rm -rf /var/cache/apk/* /tmp/*
+
+# Create a directory for Dante configuration
+RUN mkdir -p /etc/dante
+
+# Copy the Dante configuration file into the container
+COPY dante-bsp.conf /etc/dante/dante.conf
+
+# Set the entrypoint to the dante server executable with configuration path
+ENTRYPOINT ["sockd", "-f", "/etc/dante/dante.conf", "-N"]
