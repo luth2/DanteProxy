@@ -4,7 +4,10 @@
 FROM alpine:latest
 
 LABEL maintainer="luth2"
-LABEL org.opencontainers.image.description "Container with Dante Socks5 Proxy for Kubernetes"
+LABEL org.opencontainers.image.description="Container with Dante Socks5 Proxy for Kubernetes"
+LABEL org.opencontainers.image.source="https://github.com/luth2/DanteProxy"
+LABEL org.opencontainers.image.version="1.0.0"
+LABEL org.opencontainers.image.title="Dante Proxy Container"
 
 ENV PORT=1080
 
