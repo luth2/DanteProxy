@@ -1,29 +1,45 @@
-# Dockerfile to create the Base Container for Dante Proxy with Alpine
-# Build via Pipeline
-
-FROM alpine:latest
-
 LABEL org.opencontainers.image.authors="luth2"
 LABEL org.opencontainers.image.description="Container with Dante Socks5 Proxy for Kubernetes"
 LABEL org.opencontainers.image.source="https://github.com/luth2/DanteProxy"
 LABEL org.opencontainers.image.version="1.0.0"
 LABEL org.opencontainers.image.title="Dante Proxy Container"
 
-ENV PORT=1080
+# ---------- build stage ----------
+FROM ubuntu:26.04 AS build
 
-# Install necessary packages
-RUN apk update && apk add --no-cache \
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
     dante-server \
-    openssl \
-    && rm -rf /var/cache/apk/* /tmp/*
+ && rm -rf /var/lib/apt/lists/*
 
-# Create a directory for Dante configuration
-RUN mkdir -p /etc/dante
+# ---------- runtime stage ----------
+FROM ubuntu:26.04
 
-# Copy the Dante configuration file into the container
-COPY Container/dante-bsp.conf /etc/dante/dante.conf
+# minimale Runtime-Abhängigkeiten
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+    ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
 
-EXPOSE ${PORT}
+# danted + libs kopieren
+COPY --from=build /usr/sbin/danted /usr/sbin/danted
+COPY --from=build /usr/lib /usr/lib
+COPY --from=build /lib /lib
 
-# Set the entrypoint to the dante server executable with configuration path
-ENTRYPOINT ["sockd", "-f", "/etc/dante/dante.conf", "-N"]
+# Config & Runtime dirs
+RUN mkdir -p /etc/danted /var/run/danted \
+ && chmod 755 /etc/danted /var/run/danted
+
+# Dante läuft standardmäßig auf 1080
+EXPOSE 1080
+
+# Config kommt IMMER von außen
+VOLUME ["/etc/danted"]
+
+# Healthcheck (Port offen?)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
+  CMD ss -lnt | grep -q ':1080' || exit 1
+
+CMD ["danted", "-f", "/etc/danted/danted.conf", "-D"]
