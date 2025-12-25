@@ -35,7 +35,16 @@ jobs:
           echo "Using image: ${IMAGE_LOWER}"
 
       # -------------------------
-      # Cosign install
+      # Compute short SHA
+      # -------------------------
+      - name: Set short SHA
+        id: sha
+        run: |
+          SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+
+      # -------------------------
+      # Install Cosign
       # -------------------------
       - name: Install cosign
         uses: sigstore/cosign-installer@v3.5.0
@@ -43,7 +52,7 @@ jobs:
           cosign-release: v2.2.4
 
       # -------------------------
-      # Docker Buildx
+      # Set up Docker Buildx
       # -------------------------
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -58,16 +67,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-  
       # -------------------------
-      # Build & Push
+      # Build & Push Docker image
       # -------------------------
-      - name: Set Docker tags
-        id: tags
-        run: |
-          SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
-          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
-      
       - name: Build and push Docker image
         id: build
         uses: docker/build-push-action@v5
@@ -76,18 +78,26 @@ jobs:
           file: Container/DOCKERFILE
           platforms: linux/amd64,linux/arm64
           push: true
-          # Wichtig: voll qualifizierte Tags mit Registry
           tags: |
             ${{ steps.image.outputs.image }}:latest
-            ${{ steps.image.outputs.image }}:sha-${{ steps.tags.outputs.short_sha }}
+            ${{ steps.image.outputs.image }}:sha-${{ steps.sha.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           sbom: true
+          sbom-output: sbom.json
           provenance: true
           labels: |
             org.opencontainers.image.revision=${GITHUB_SHA}
             org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}
 
+      # -------------------------
+      # Upload SBOM as artifact
+      # -------------------------
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom
+          path: sbom.json
 
       # -------------------------
       # Sign image with Cosign
@@ -100,7 +110,7 @@ jobs:
           cosign sign --yes ${IMAGE}@${DIGEST}
 
       # -------------------------
-      # Trivy Scan
+      # Run Trivy vulnerability scanner
       # -------------------------
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.33.1
