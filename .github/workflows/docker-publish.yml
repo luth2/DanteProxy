@@ -94,7 +94,7 @@ jobs:
       # Upload SBOM as artifact
       # -------------------------
       - name: Upload SBOM
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: sbom
           path: sbom.json
