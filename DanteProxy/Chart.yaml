@@ -1,9 +1,0 @@
-apiVersion: v2
-name: DanteProxy
-description: Helm Chart to run Dante proxy as Container within Kubenretes, it offers some lightwight Socks Proxy within the Kubernetes and also from outside the Kubernetes Cluster
-
-type: application
-
-version: 0.1.0
-
-appVersion: "1.0.0"
