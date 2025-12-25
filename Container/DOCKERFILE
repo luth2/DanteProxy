@@ -23,5 +23,7 @@ RUN mkdir -p /etc/dante
 # Copy the Dante configuration file into the container
 COPY Container/dante-bsp.conf /etc/dante/dante.conf
 
+EXPOSE ${PORT}
+
 # Set the entrypoint to the dante server executable with configuration path
 ENTRYPOINT ["sockd", "-f", "/etc/dante/dante.conf", "-N"]
