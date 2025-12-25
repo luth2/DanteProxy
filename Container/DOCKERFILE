@@ -1,9 +1,3 @@
-LABEL org.opencontainers.image.authors="luth2"
-LABEL org.opencontainers.image.description="Container with Dante Socks5 Proxy for Kubernetes"
-LABEL org.opencontainers.image.source="https://github.com/luth2/DanteProxy"
-LABEL org.opencontainers.image.version="1.0.0"
-LABEL org.opencontainers.image.title="Dante Proxy Container"
-
 # ---------- build stage ----------
 FROM ubuntu:26.04 AS build
 
@@ -15,6 +9,12 @@ RUN apt-get update \
 
 # ---------- runtime stage ----------
 FROM ubuntu:26.04
+
+LABEL org.opencontainers.image.authors="luth2" \
+      org.opencontainers.image.description="Container with Dante Socks5 Proxy for Kubernetes" \
+      org.opencontainers.image.source="https://github.com/luth2/DanteProxy" \
+      org.opencontainers.image.version="1.0.0" \
+      org.opencontainers.image.title="Dante Proxy Container"
 
 # minimal runtime deps
 RUN apt-get update \
