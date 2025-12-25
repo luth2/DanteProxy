@@ -58,15 +58,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # -------------------------
-      # Metadata (latest + sha)
-      # -------------------------
-      - name: Set Docker tags
-        id: meta
-        run: |
-          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          echo "tags=latest,sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
-
+  
       # -------------------------
       # Build & Push
       # -------------------------
@@ -78,7 +70,10 @@ jobs:
           file: Container/DOCKERFILE
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          # Wichtig: voll qualifizierte Tags mit Registry
+          tags: |
+            ${{ steps.image.outputs.image }}:latest
+            ${{ steps.image.outputs.image }}:sha-${GITHUB_SHA::7}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           sbom: true
@@ -86,6 +81,7 @@ jobs:
           labels: |
             org.opencontainers.image.revision=${GITHUB_SHA}
             org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}
+
 
       # -------------------------
       # Sign image with Cosign
