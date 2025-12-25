@@ -10,36 +10,36 @@ FROM ubuntu:26.04 AS build
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-    dante-server \
+ && apt-get install -y --no-install-recommends dante-server \
  && rm -rf /var/lib/apt/lists/*
 
 # ---------- runtime stage ----------
 FROM ubuntu:26.04
 
-# minimale Runtime-Abhängigkeiten
+# minimal runtime deps
 RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-    ca-certificates \
+ && apt-get install -y --no-install-recommends ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
-# danted + libs kopieren
+# Non-root User
+RUN groupadd -r dante && useradd -r -g dante -u 10001 dante
+
+# binaries & libs
 COPY --from=build /usr/sbin/danted /usr/sbin/danted
 COPY --from=build /usr/lib /usr/lib
 COPY --from=build /lib /lib
 
-# Config & Runtime dirs
+# runtime dirs
 RUN mkdir -p /etc/danted /var/run/danted \
- && chmod 755 /etc/danted /var/run/danted
+ && chown -R dante:dante /etc/danted /var/run/danted \
+ && chmod 750 /etc/danted /var/run/danted
 
-# Dante läuft standardmäßig auf 1080
 EXPOSE 1080
-
-# Config kommt IMMER von außen
 VOLUME ["/etc/danted"]
 
-# Healthcheck (Port offen?)
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
+USER dante
+
+HEALTHCHECK --interval=30s --timeout=3s \
   CMD ss -lnt | grep -q ':1080' || exit 1
 
 CMD ["danted", "-f", "/etc/danted/danted.conf", "-D"]
