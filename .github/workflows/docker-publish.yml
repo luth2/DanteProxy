@@ -113,7 +113,7 @@ jobs:
       - uses: anchore/scan-action@v7.2.2
         id: scan
         with:
-          image: ${{ steps.prep.outputs.image }}:latest
+          sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
           fail-build: false
 
       - name: upload Anchore scan SARIF report
