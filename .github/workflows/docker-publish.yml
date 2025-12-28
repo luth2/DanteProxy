@@ -97,11 +97,12 @@ jobs:
       # -------------------------
 
       - name: Create SBOM
-        uses: anchore/sbom-action@0.21.0
+        uses: anchore/sbom-action@v0.21.0
         with:
           image: ${{ steps.image.outputs.image }}:latest
           format: spdx-json
           output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
+          upload-artifact: true
 
       - name: Submit SBOM to GitHub Dependency Graph
         uses: advanced-security/spdx-dependency-submission-action@v0.1.1
