@@ -113,7 +113,7 @@ jobs:
       - uses: anchore/scan-action@v7.2.2
         id: scan
         with:
-          image: ${{ steps.prep.outputs.image }}
+          image: ${{ steps.prep.outputs.image }}:latest
           fail-build: false
 
       - name: upload Anchore scan SARIF report
