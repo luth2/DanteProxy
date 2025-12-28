@@ -97,8 +97,9 @@ jobs:
       # -------------------------
 
       - name: Create SBOM
-        uses: anchore/sbom-action@v0
-        with:
+        uses: anchore/sbom-action@0.21.0
+         with:
+          image: ${{ steps.image.outputs.image }}:latest
           format: spdx-json
           output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
 
