@@ -3,14 +3,17 @@ Dante Proxy Container and Helm Chart
 
 ## Lokales Testen
 
+```cmd
 docker run -d \
   -p 1080:1080 \
   -v $(pwd)/danted.conf:/etc/danted/danted.conf:ro \
   --name dante \
   dante:prod
+```
 
 ## Kubernetes Deployment (Minimal)
 
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -55,3 +58,4 @@ spec:
           name: dante-config
       - name: run
         emptyDir: {}
+```
